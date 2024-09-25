@@ -7,6 +7,17 @@ function sanitize_input($data) {
     return htmlspecialchars(stripslashes(trim($data)));
 }
 
+/*
+ JKSGFSDFSD
+ FSDF
+ SDF
+ SD
+ DF
+ SD
+ F
+ SDF
+ SD
+*/
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = sanitize_input($_POST['username']);
