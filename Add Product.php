@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <div class="signup-container">
 <h2 class="text-center">Add a Product</h2>
-<a href="Menu.php" style="margin-top: -80px;" class="btn btn-secondary back-btn">Back</a>
+<a href="inventory.php" style="margin-top: -80px;" class="btn btn-secondary back-btn">Back</a>
 <form action="add product.php" method="post">
             <div class="form-group">
                 <label for="Product">Product name:</label>
