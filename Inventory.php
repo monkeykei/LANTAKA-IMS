@@ -15,13 +15,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
         $stmt->bind_param("i", $product_id);
 
         // Execute the query
-        if ($stmt->execute()) {            
+        if ($stmt->execute()) {
+            $_SESSION['message'] = "Product deleted successfully.";
         } else {
             $_SESSION['error'] = "Error deleting product: " . $conn->error;
         }
 
         $stmt->close();
+    } else {
+        $_SESSION['error'] = "Error preparing delete query: " . $conn->error;
     }
+
+    // Redirect to refresh the page after delete
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Retrieve the inventory items from the database
@@ -180,19 +187,7 @@ $result = mysqli_query($conn, $query);
                         <a href="edit.php?I_ID=<?php echo $row['I_ID']; ?>" class="btn btn-primary">Edit</a>
                     </td>
                     <td>
-                        <form method="post" action="">
-                            <input type="hidden" name="I_ID" value="<?php echo $row['I_ID']; ?>">
-                            <button type="button" id="openModal-<?php echo $row['I_ID']; ?>" class="btn btn-danger">Delete</button>
-
-                            <div id="modal-<?php echo $row['I_ID']; ?>" class="modal">
-                                <div class="modal-content">
-                                    <span class="close" data-modal-id="<?php echo $row['I_ID']; ?>">&times;</span>
-                                    <p>Are you sure you want to delete this product?</p>
-                                    <button type="submit" name="delete" class="btn btn-danger">Yes</button>
-                                    <button type="button" class="btn btn-light close" data-modal-id="<?php echo $row['I_ID']; ?>">No</button>
-                                </div>
-                            </div>
-                        </form>
+                        <button type="button" class="btn btn-danger" onclick="openModal(<?php echo $row['I_ID']; ?>)">Delete</button>
                     </td>
                 </tr>
                 <?php } ?>
@@ -201,34 +196,41 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
+<!-- Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>Are you sure you want to delete this product?</p>
+        <form method="post" action="">
+            <input type="hidden" id="deleteProductId" name="I_ID" value="">
+            <button type="submit" name="delete" class="btn btn-danger">Yes</button>
+            <button type="button" class="btn btn-light" onclick="closeModal()">No</button>
+        </form>
+    </div>
+</div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    <?php foreach ($result as $row) { ?>
-        var modal = document.getElementById("modal-<?php echo $row['I_ID']; ?>");
-        var btn = document.getElementById("openModal-<?php echo $row['I_ID']; ?>");
-        var closeModalButtons = document.querySelectorAll('[data-modal-id="<?php echo $row['I_ID']; ?>"]');
-        
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
+var modal = document.getElementById("deleteModal");
+var span = document.getElementsByClassName("close")[0];
 
-        closeModalButtons.forEach(function(btn) {
-            btn.onclick = function() {
-                modal.style.display = "none";
-            }
-        });
-    <?php } ?>
+function openModal(productId) {
+    modal.style.display = "block";
+    document.getElementById("deleteProductId").value = productId;
+}
 
-    // Close the modal if the user clicks outside of it
-    window.onclick = function(event) {
-        <?php foreach ($result as $row) { ?>
-            var modal = document.getElementById("modal-<?php echo $row['I_ID']; ?>");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        <?php } ?>
+function closeModal() {
+    modal.style.display = "none";
+}
+
+span.onclick = function() {
+    closeModal();
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        closeModal();
     }
-});
+}
 </script>
 
 </body>

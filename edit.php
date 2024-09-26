@@ -49,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,29 +62,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
-        .signup-container {
-            max-width: 500px;
-            width: 100%;
+        .edit-container {
+            width: 800px;
+            height: 600px;
             background-color: #ffffff;
             padding: 2rem;
             border-radius: 0.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
         }
-        .signup-container h2 {
-            margin-bottom: 1.5rem;
+        .edit-container h2 {
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+        .form-group label {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            font-size: 1.1rem;
+            padding: 0.75rem;
+        }
+        .btn-success {
+            font-size: 1.2rem;
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
+        .back-btn {
+            align-self: flex-start;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 850px) {
+            .edit-container {
+                width: 100%;
+                height: auto;
+                min-height: 600px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="signup-container">
-    <h2 class="text-center">Edit Product</h2>
-    <a href="inventory.php" style="margin-top: -100px;" class="btn btn-secondary back-btn">Back</a>
+<div class="edit-container">
+    <a href="inventory.php" class="btn btn-secondary back-btn">Back</a>
+    <h2>Edit Product</h2>
     <form action="edit.php" method="post"> 
-
-        
         <input type="hidden" name="I_ID" value="<?php echo $I_ID; ?>">
 
         <div class="form-group">
@@ -98,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <div class="form-group">
             <label for="Price">Price:</label>
-            <input type="number" class="form-control" id="I_Price" name="I_Price" value="<?php echo $product_price; ?>" required>
+            <input type="number" step="0.01" class="form-control" id="I_Price" name="I_Price" value="<?php echo $product_price; ?>" required>
         </div>
 
         <button type="submit" class="btn btn-success btn-block">Update Product</button>
