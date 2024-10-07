@@ -12,9 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   
     $I_Product = sanitize_input($_POST['I_Product']);
     $I_Quantity = sanitize_input(($_POST['I_Quantity']));
-    $I_Price = sanitize_input($_POST['I_Price']);
+    $I_Location = sanitize_input($_POST['I_Location']);
 
-    $sql = "INSERT INTO Inventory (I_Product, I_Quantity, I_Price) VALUES ('$I_Product', '$I_Quantity', '$I_Price')";
+    $sql = "INSERT INTO Inventory (I_Product, I_Quantity, I_Location) VALUES ('$I_Product', '$I_Quantity', '$I_Location')";
 
     if ($conn->query($sql) === TRUE) {
         $success_message = "Registration successful. <a href='Inventory.php'>Go to inventory</a>";
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #ADD8E6;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -68,9 +68,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="number" class="form-control" id="I_Quantity" name="I_Quantity" required>
             </div>
             <div class="form-group">
-                <label for="Price">Price:</label>
-                <input type="number" class="form-control" id="I_Price" name="I_Price" required>
-            </div>
+            <label for="I_Location">Located at:</label>
+            <input type="text" class="form-control" id="I_Location" name="I_Location" required>
+        </div>
             <button type="submit" class="btn btn-success btn-block">Submit</button>
 </form>
 </div>

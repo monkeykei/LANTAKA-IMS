@@ -2,23 +2,26 @@
 session_start();
 require 'db.php'; 
 
+// Sanitize input to prevent XSS attacks
 function sanitize_input($data) {
     return htmlspecialchars(stripslashes(trim($data)));
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+    // Get the sanitized POST data
     $I_Product = sanitize_input($_POST['I_Product']);
     $I_Quantity = sanitize_input($_POST['I_Quantity']);
-    $I_Price = sanitize_input($_POST['I_Price']);
+    $I_Location = sanitize_input($_POST['I_Location']);
     $I_ID = sanitize_input($_POST['I_ID']); 
 
-    $sql = "UPDATE Inventory SET I_product=?, I_quantity=?, I_price=? WHERE I_ID=?";
+    // SQL query for updating the inventory
+    $sql = "UPDATE Inventory SET I_product=?, I_quantity=?, I_Location=? WHERE I_ID=?";
     
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("sidi", $I_Product, $I_Quantity, $I_Price, $I_ID); 
+        $stmt->bind_param("sids", $I_Product, $I_Quantity, $I_Location, $I_ID); 
         if ($stmt->execute()) {
-            header("Location: inventory.php");
+            header("Location: inventory.php"); // Redirect to the inventory page after update
             exit();
         } else {
             echo "Error updating record: " . $stmt->error;
@@ -31,16 +34,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn->close();
 } else {
+    // Initialize default values to avoid "undefined variable" errors
+    $I_Product = '';
+    $I_Quantity = '';
+    $I_Location = '';
+
+    // Fetch product information when I_ID is passed via GET request
     if (isset($_GET['I_ID'])) {
         $I_ID = $_GET['I_ID']; 
-        $sql = "SELECT I_product, I_quantity, I_price FROM Inventory WHERE I_ID = ?";
+        $sql = "SELECT I_product, I_quantity, I_Location FROM Inventory WHERE I_ID = ?";
         
         if ($stmt = $conn->prepare($sql)) {
             $stmt->bind_param("i", $I_ID); 
             $stmt->execute();
-            $stmt->bind_result($product_name, $product_quantity, $product_price); 
-            $stmt->fetch();
+            $stmt->bind_result($product_name, $product_quantity, $I_Location); 
+            
+            // Fetch product data if available
+            if ($stmt->fetch()) {
+                $I_Product = $product_name;
+                $I_Quantity = $product_quantity;
+            } else {
+                echo "No product found with that ID.";
+                exit;
+            }
+
             $stmt->close();
+        } else {
+            echo "Error preparing the query: " . $conn->error;
+            exit;
         }
     } else {
         echo "Error: Product ID is not set.";
@@ -58,7 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #ADD8E6;
+            background: url('bg_pic.png') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -114,17 +136,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="edit.php" method="post"> 
         <input type="hidden" name="I_ID" value="<?php echo $I_ID; ?>">
 
+        <!-- Product Name (read-only) -->
         <div class="form-group">
             <label for="Product">Product Name:</label>
-            <input type="text" class="form-control" id="I_Product" name="I_Product" value="<?php echo $product_name; ?>" required>
+            <input type="text" class="form-control" id="I_Product" name="I_Product" value="<?php echo $I_Product; ?>" readonly>
         </div>
+
+        <!-- Quantity (editable) -->
         <div class="form-group">
             <label for="Quantity">Quantity:</label>
-            <input type="number" class="form-control" id="I_Quantity" name="I_Quantity" value="<?php echo $product_quantity; ?>" required>
+            <input type="number" class="form-control" id="I_Quantity" name="I_Quantity" value="<?php echo $I_Quantity; ?>" required>
         </div>
+
+        <!-- Location (editable) -->
         <div class="form-group">
-            <label for="Price">Price:</label>
-            <input type="number" step="0.01" class="form-control" id="I_Price" name="I_Price" value="<?php echo $product_price; ?>" required>
+            <label for="I_Location">Located at:</label>
+            <input type="text" class="form-control" id="I_Location" name="I_Location" value="<?php echo $I_Location; ?>" required>
         </div>
 
         <button type="submit" class="btn btn-success btn-block">Update Product</button>

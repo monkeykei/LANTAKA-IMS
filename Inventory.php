@@ -44,9 +44,11 @@ $result = mysqli_query($conn, $query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            background-color: #ADD8E6;
+            background: url('bg_pic.png') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -55,7 +57,7 @@ $result = mysqli_query($conn, $query);
             padding: 20px;
         }
         .signup-container {
-            max-width: 1500px;
+            max-width: 1400px;
             width: 100%;
             background-color: #ffffff;
             padding: 2rem;
@@ -107,7 +109,13 @@ $result = mysqli_query($conn, $query);
         .button-container {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .table-container {
             overflow-x: auto;
@@ -139,7 +147,7 @@ $result = mysqli_query($conn, $query);
 </head>
 <body>
 <div class="signup-container">
-    <h2 class="text-center">Inventory</h2>
+    <h2 class="text-center">House Keeping Inventory</h2>
 
     <?php if (isset($_SESSION['message'])): ?>
         <div class="alert alert-success">
@@ -161,6 +169,14 @@ $result = mysqli_query($conn, $query);
 
     <div class="button-container">
         <button type="button" class="btn btn-success btn-lg" onclick="document.location='Add Product.php'">Add Product</button>
+
+        <div class="search-bar">
+            <input id="search-input" type="search" class="form-control" placeholder="Search for a product"/>
+            <button id="search-button" type="button" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
         <button type="button" class="btn btn-danger btn-lg" onclick="document.location='Index.php'">Logout</button>      
     </div>
 
@@ -169,9 +185,9 @@ $result = mysqli_query($conn, $query);
             <thead>
                 <tr>
                     <th scope="col" class="active">ID</th>
-                    <th scope="col" class="active">Product</th>
-                    <th scope="col" class="active">Quantity</th>
-                    <th scope="col" class="active">Price</th>
+                    <th scope="col" class="active">Item Description</th>
+                    <th scope="col" class="active">Units</th>
+                    <th scope="col" class="active">Located at</th>
                     <th scope="col" class="active"></th>
                     <th scope="col" class="active"></th>
                 </tr>
@@ -182,7 +198,7 @@ $result = mysqli_query($conn, $query);
                     <td> <?php echo $row['I_ID']; ?> </td> 
                     <td> <?php echo $row['I_Product']; ?> </td>
                     <td> <?php echo $row['I_Quantity']; ?> </td>
-                    <td> <?php echo $row['I_Price']; ?> </td>
+                    <td> <?php echo $row['I_Location']; ?> </td>
                     <td>
                         <a href="edit.php?I_ID=<?php echo $row['I_ID']; ?>" class="btn btn-primary">Edit</a>
                     </td>

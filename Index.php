@@ -34,28 +34,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management System</title>
+    <title>ADZU LANTAKA Inventory Management System</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #ADD8E6;
+            background: url('bg_pic.png') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-        }
+        }    
         .login-container {
             width: 600px;
-            height: 600px;
-            background-color: #ffffff;
+            height: 500px;           
             padding: 3rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;           
             display: flex;
             flex-direction: column;
             justify-content: center;
+            transform: translateY(-50px); 
         }
         .login-container h2 {
             margin-bottom: 2rem;
@@ -75,8 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 0.5rem;
         }
         .form-control {
-            font-size: 1.1rem;
-            padding: 0.75rem;
+            font-size: 1.5rem;
+            padding: 1rem;
+            font-family: 'Verdana', monospace;
         }
         .btn-primary {
             font-size: 1.2rem;
@@ -96,12 +97,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 font-size: 2rem;
             }
         }
+        img{
+            max-height: 10rem;
+            max-width: 10rem;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="form-container">
-            <h2 class="text-center">Inventory Management System</h2>
+            <center><img src="adzu_logo.png" alt="ateneo"></center>
+            <h2 class="text-center" style="color: white; font-family: 'Montserrat', sans-serif;">ADZU LANTAKA <br> Inventory Management System</h2>
             <?php if (isset($error_message)): ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $error_message; ?>
@@ -109,18 +115,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
             <form action="index.php" method="post">
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
-            <div class="mt-4 text-center">
-                <p>Not registered yet? <a href="signup.php">Sign up here</a></p>
-            </div>
+            </form> 
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
