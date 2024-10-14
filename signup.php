@@ -9,12 +9,10 @@ function sanitize_input($data) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-  
-    $username = sanitize_input($_POST['username']);
-    $password = password_hash(sanitize_input($_POST['password']), PASSWORD_DEFAULT);
-    $email = sanitize_input($_POST['email']);
+    $U_Username = sanitize_input($_POST['username']);
+    $U_Password = password_hash(sanitize_input($_POST['password']), PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, password, email) VALUES ('$username', '$password', '$email')";
+    $sql = "INSERT INTO users (U_Username, U_Password) VALUES ('$U_Username', '$U_Password')";
 
     if ($conn->query($sql) === TRUE) {
         $success_message = "Registration successful. <a href='index.php'>Login here</a>";
@@ -31,12 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <title>Inventory Management System</title>
+    <title>ADZU Create User</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <style>
         body {
-            background-color: #f8f9fa;
+            background: url('bg_pic.png') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 <body>
 <div class="signup-container">
-<h2 class="text-center">Inventory Management System</h2>
+<h2 class="text-center">Create New User</h2>
 <form action="signup.php" method="post">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -66,10 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <button type="submit" class="btn btn-success btn-block">Register</button>
 </form>

@@ -47,6 +47,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
     exit();
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
+    function sanitize_input($data) {
+        return htmlspecialchars(stripslashes(trim($data)));
+    }
+
+    $I_Product = sanitize_input($_POST['I_Product']);
+    $I_Quantity = sanitize_input($_POST['I_Quantity']);
+    $I_Unit = sanitize_input($_POST['I_Unit']);
+    $I_Location = sanitize_input($_POST['I_Location']);
+    $I_SN = !empty($_POST['I_SN']) ? sanitize_input($_POST['I_SN']) : NULL; // Handle empty Serial Number
+
+    // SQL Query with Serial Number
+    $sql = "INSERT INTO inventory (I_Product, I_Quantity, I_SN, I_Location, I_Unit) VALUES (?, ?, ?, ?, ?)";
+
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("sisss", $I_Product, $I_Quantity, $I_SN, $I_Location, $I_Unit);
+        if ($stmt->execute()) {
+            $_SESSION['message'] = "Product added successfully.";
+        } else {
+            $_SESSION['error'] = "Error adding product: " . $conn->error;
+        }
+        $stmt->close();
+    } else {
+        $_SESSION['error'] = "Error preparing insert query: " . $conn->error;
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 $query = "SELECT * FROM inventory";
 $result = mysqli_query($conn, $query);
 
@@ -83,14 +113,15 @@ $result = mysqli_query($conn, $query);
             gap: 10px;
         }
         .signup-container {
-            max-width: 1400px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
+        max-width: 1400px;
+        width: 100%;
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        border: 5px solid #003a6c; 
         }
         .signup-container h2 {
             margin-bottom: 1.5rem;
@@ -157,8 +188,9 @@ $result = mysqli_query($conn, $query);
     </style>
 </head>
 <body>
-<div class="signup-container">
-    <h2 class="text-center">House Keeping Inventory</h2>
+    
+<form class="signup-container">
+    <h2 class="text-center" style="font-weight: bold; font-size: 50px">House Keeping Inventory</h2>
 
     <?php if (isset($_SESSION['message'])): ?>
         <div class="alert alert-success">
@@ -179,7 +211,7 @@ $result = mysqli_query($conn, $query);
     <?php endif; ?>
 
     <div class="button-container">
-        <button type="button" class="btn btn-success btn-lg" onclick="document.location='Add Product.php'">Add Product</button>
+    <button type="button" class="btn btn-success btn-lg" onclick="openAddProductModal()">Add Product</button>
 
         <div class="search-bar">
             <input id="search-input" type="search" class="form-control" placeholder="Search for a product"/>
@@ -223,7 +255,7 @@ $result = mysqli_query($conn, $query);
             </tbody>
         </table>  
     </div>
-</div>
+</form>
 
 <!-- Delete Modal -->
 <div id="deleteModal" class="modal">
@@ -234,6 +266,57 @@ $result = mysqli_query($conn, $query);
             <input type="hidden" id="deleteProductId" name="I_ID" value="">
             <button type="submit" name="delete" class="btn btn-danger">Yes</button>
             <button type="button" class="btn btn-light" onclick="closeModal()">No</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div id="addProductModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddProductModal()">&times;</span>
+        <h3>Add New Product</h3>
+        <form method="POST">
+            <input type="hidden" name="add_product" value="1">
+
+            <!-- Product Name Input -->
+            <div class="form-group">
+                <label for="I_Product">Product Name</label>
+                <input type="text" id="I_Product" name="I_Product" class="form-control" required>
+            </div>
+
+            <!-- Quantity Input -->
+            <div class="form-group">
+                <label for="I_Quantity">Quantity</label>
+                <input type="number" id="I_Quantity" name="I_Quantity" class="form-control" required>
+            </div>
+
+            <!-- Serial Number Input -->
+            <div class="form-group">
+                <label for="I_SN">Serial Number</label>
+                <input type="text" id="I_SN" name="I_SN" class="form-control">
+            </div>
+
+            <!-- Unit Input -->
+            <div class="form-group">
+                <label for="I_Unit">Unit</label>
+                <select id="I_Unit" name="I_Unit" class="form-control" required>
+                    <option value="" disabled selected>Select Unit</option>
+                    <option value="pieces">Pieces</option>
+                    <option value="kg">Kg</option>
+                    <option value="litre">Litre</option>
+                    <option value="meter">Meter</option>
+                    <option value="feet">Feet</option>
+                    <option value="inches">Inches</option>
+                </select>
+            </div>
+
+            <!-- Location Input -->
+            <div class="form-group">
+                <label for="I_Location">Location</label>
+                <input type="text" id="I_Location" name="I_Location" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Add Product</button>
         </form>
     </div>
 </div>
@@ -277,8 +360,7 @@ $result = mysqli_query($conn, $query);
             <button type="submit" name="edit" class="btn btn-success">Save Changes</button>
         </form>
     </div>
-</div>
-
+</form>
 <script>
     function openModal(productId) {
         document.getElementById('deleteModal').style.display = 'block';
@@ -296,7 +378,7 @@ $result = mysqli_query($conn, $query);
         document.getElementById('editQuantity').value = productQuantity;
         document.getElementById('editLocation').value = productLocation;
         
-        // Set the unit dropdown
+        // unit dropdown
         const unitDropdown = document.getElementById('editUnit');
         for (let option of unitDropdown.options) {
             if (option.value === productQuantityUnit) {
@@ -310,17 +392,47 @@ $result = mysqli_query($conn, $query);
         document.getElementById('editModal').style.display = 'none';
     }
 
-    // Implement search functionality
+    // search functionality
     document.getElementById('search-button').onclick = function() {
+        performSearch();
+    };
+
+    document.getElementById('search-input').addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission
+            performSearch(); // Trigger search function
+        }
+    });
+
+    function performSearch() {
         let input = document.getElementById('search-input').value.toLowerCase();
         let tableRows = document.querySelectorAll('.table tbody tr');
 
-        tableRows.forEach(row => {
-            let cells = row.getElementsByTagName('td');
-            let rowContainsInput = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(input));
-            row.style.display = rowContainsInput ? '' : 'none';
-        });
-    };
+    tableRows.forEach(row => {
+        let cells = row.getElementsByTagName('td');
+        let rowContainsInput = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(input));
+        row.style.display = rowContainsInput ? '' : 'none';
+    });
+}
+
+
+    // open the modal
+    function openAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'block';
+    }
+
+    // close the modal
+    function closeAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('addProductModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+}
+
 </script>
 </body>
 </html>
