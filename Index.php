@@ -8,15 +8,15 @@ function sanitize_input($data) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = sanitize_input($_POST['username']);
-    $password = sanitize_input($_POST['password']);
+    $U_Username = sanitize_input($_POST['username']);
+    $U_Password = sanitize_input($_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE username = '$username'";
+    $sql = "SELECT * FROM users WHERE U_Username = '$U_Username'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        if (password_verify($password, $row['password'])) {
+        if (password_verify($U_Password, $row['U_Password'])) {
             $_SESSION['loggedin'] = true;
             header('Location: Inventory.php');
             exit();
