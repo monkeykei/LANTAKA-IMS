@@ -36,6 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADZU LANTAKA Inventory Management System</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/matura-mt-script-capitals" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto Slab' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Teko' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Alata' rel='stylesheet'>
     <style>
         body {
             background: url('bg_pic.png') no-repeat center center fixed;
@@ -107,7 +111,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="login-container">
         <div class="form-container">
             <center><img src="adzu_logo.png" alt="ateneo"></center>
-            <h2 class="text-center" style="color: white; font-family: 'Montserrat', sans-serif;">ADZU LANTAKA <br> Inventory Management System</h2>
+            <!-- <h2 class="text-center" style="color: white; font-family: 'Matura MT Script Capitals', sans-serif;">ADZU <br>Lantaka <br> Inventory Management System</h2> -->
+            <h2 class="text-center" style="color: white; font-family: 'Roboto slab', sans-serif;">ADZU Lantaka <br> Inventory Management System</h2>
+            <!-- <h2 class="text-center" style="color: white; font-family: 'Teko', sans-serif;">ADZU Lantaka <br> Inventory Management System</h2> -->
+            <!-- <h2 class="text-center" style="color: white; font-family: 'Alata', sans-serif;">ADZU Lantaka <br> Inventory Management System</h2> -->
             <?php if (isset($error_message)): ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $error_message; ?>

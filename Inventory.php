@@ -1,11 +1,26 @@
 <?php
 session_start();
-require 'db.php'; 
+require 'db.php';
 
+$limit = 15; // Number of entries to show per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Get the current page or set to 1
+$offset = ($page - 1) * $limit; // Calculate the offset for the query
+
+// Fetch all products for searching
+$all_products_query = "SELECT * FROM inventory";
+$all_products_result = mysqli_query($conn, $all_products_query);
+$all_products = mysqli_fetch_all($all_products_result, MYSQLI_ASSOC);
+
+// Get products for the current page
+$query = "SELECT * FROM inventory LIMIT $limit OFFSET $offset";
+$result = mysqli_query($conn, $query);
+
+
+// Handle delete product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
     $product_id = $_POST['I_ID'];
     $delete_query = "DELETE FROM inventory WHERE I_ID = ?";
-    
+
     if ($stmt = $conn->prepare($delete_query)) {
         $stmt->bind_param("i", $product_id);
         if ($stmt->execute()) {
@@ -22,17 +37,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
     exit();
 }
 
+// Handle edit product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
     $I_ID = $_POST['I_ID'];
     $I_Product = $_POST['I_Product'];
     $I_Quantity = $_POST['I_Quantity'];
     $I_Location = $_POST['I_Location'];
     $I_Unit = $_POST['I_Unit'];
+    $I_SN = $_POST['I_SN'];
 
-    $edit_query = "UPDATE inventory SET I_Product = ?, I_Quantity = ?, I_Location = ?, I_Unit = ? WHERE I_ID = ?";
-    
+    $edit_query = "UPDATE inventory SET I_Product = ?, I_Quantity = ?, I_SN = ?, I_Location = ?, I_Unit = ? WHERE I_ID = ?";
+
     if ($stmt = $conn->prepare($edit_query)) {
-        $stmt->bind_param("sissi", $I_Product, $I_Quantity, $I_Location, $I_Unit, $I_ID);
+        $stmt->bind_param("sisssi", $I_Product, $I_Quantity, $I_SN, $I_Location, $I_Unit, $I_ID);
         if ($stmt->execute()) {
             $_SESSION['message'] = "Product updated successfully.";
         } else {
@@ -47,6 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
     exit();
 }
 
+// Handle add product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     function sanitize_input($data) {
         return htmlspecialchars(stripslashes(trim($data)));
@@ -56,9 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     $I_Quantity = sanitize_input($_POST['I_Quantity']);
     $I_Unit = sanitize_input($_POST['I_Unit']);
     $I_Location = sanitize_input($_POST['I_Location']);
-    $I_SN = !empty($_POST['I_SN']) ? sanitize_input($_POST['I_SN']) : NULL; // Handle empty Serial Number
+    $I_SN = !empty($_POST['I_SN']) ? sanitize_input($_POST['I_SN']) : NULL;
 
-    // SQL Query with Serial Number
     $sql = "INSERT INTO inventory (I_Product, I_Quantity, I_SN, I_Location, I_Unit) VALUES (?, ?, ?, ?, ?)";
 
     if ($stmt = $conn->prepare($sql)) {
@@ -77,9 +94,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     exit();
 }
 
-$query = "SELECT * FROM inventory";
-$result = mysqli_query($conn, $query);
+// Get total number of products for pagination
+$total_query = "SELECT COUNT(*) FROM inventory";
+$total_result = mysqli_query($conn, $total_query);
+$total_row = mysqli_fetch_row($total_result);
+$total_products = $total_row[0];
+$total_pages = ceil($total_products / $limit);
 
+// Get products for the current page
+$query = "SELECT * FROM inventory LIMIT $limit OFFSET $offset";
+$result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
@@ -113,7 +137,7 @@ $result = mysqli_query($conn, $query);
             gap: 10px;
         }
         .signup-container {
-        max-width: 1400px;
+        max-width: 1300px;
         width: 100%;
         background-color: #ffffff;
         padding: 2rem;
@@ -185,6 +209,15 @@ $result = mysqli_query($conn, $query);
         .table thead th {
             border-bottom: 2px solid #dee2e6;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination .btn {
+            margin: 0 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -213,27 +246,27 @@ $result = mysqli_query($conn, $query);
     <div class="button-container">
     <button type="button" class="btn btn-success btn-lg" onclick="openAddProductModal()">Add Product</button>
 
-        <div class="search-bar">
+    <div class="search-bar">
             <input id="search-input" type="search" class="form-control" placeholder="Search for a product"/>
             <button id="search-button" type="button" class="btn btn-primary">
                 <i class="fas fa-search"></i>
             </button>
         </div>
 
+
         <button type="button" class="btn btn-danger btn-lg" onclick="document.location='Index.php'">Logout</button>      
     </div>
 
     <div class="table-container">
         <table class="table table-bordered">
-            <thead>
+        <thead>
                 <tr>
                     <th scope="col" class="active">ID</th>
                     <th scope="col" class="active">Item Description</th>
                     <th scope="col" class="active">Serial No.</th>
-                    <th scope="col" class="active">Units</th>
-                    <th scope="col" class="active">Located at</th>
-                    <th scope="col" class="active"></th>
-                    <th scope="col" class="active"></th>
+                    <th scope="col" class="active">Quantity</th>
+                    <th scope="col" class="active">Location</th>
+                    <th scope="col" class="active">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -245,16 +278,31 @@ $result = mysqli_query($conn, $query);
                     <td> <?php echo $row['I_Quantity'] . ' ' . $row['I_Unit']; ?> </td>
                     <td> <?php echo $row['I_Location']; ?> </td>
                     <td>
-                        <button type="button" class="btn btn-primary" onclick="openEditModal(<?php echo $row['I_ID']; ?>, '<?php echo $row['I_Product']; ?>', '<?php echo $row['I_Quantity']; ?>', '<?php echo $row['I_Location']; ?>', '<?php echo $row['I_Unit']; ?>')">Edit</button>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger" onclick="openModal(<?php echo $row['I_ID']; ?>)">Delete</button>
+                    <button type="button" class="btn btn-primary" onclick="openEditModal(<?php echo $row['I_ID']; ?>, '<?php echo $row['I_Product']; ?>', '<?php echo $row['I_Quantity']; ?>', '<?php echo $row['I_Location']; ?>', '<?php echo $row['I_Unit']; ?>', '<?php echo $row['I_SN']; ?>')">Edit</button>              
+                    <button type="button" class="btn btn-danger" onclick="openModal(<?php echo $row['I_ID']; ?>)">Delete</button>
                     </td>
                 </tr>
                 <?php } ?>
             </tbody>
         </table>  
     </div>
+
+    <div class="pagination">
+    <?php if ($page > 1): ?>
+        <a href="?page=<?php echo $page - 1; ?>" class="btn btn-primary">Previous</a>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+        <a href="?page=<?php echo $i; ?>" class="btn <?php echo ($i === $page) ? 'btn-success' : 'btn-secondary'; ?>">
+            <?php echo $i; ?>
+        </a>
+    <?php endfor; ?>
+
+    <?php if ($page < $total_pages): ?>
+        <a href="?page=<?php echo $page + 1; ?>" class="btn btn-primary">Next</a>
+    <?php endif; ?>
+</div>
+
 </form>
 
 <!-- Delete Modal -->
@@ -328,7 +376,7 @@ $result = mysqli_query($conn, $query);
         <h3>Edit Product</h3>
         <form method="post" action="">
             <input type="hidden" id="editProductId" name="I_ID" value="">
-            
+
             <div class="form-group">
                 <label for="editProductName">Product Name:</label>
                 <input type="text" class="form-control" id="editProductName" name="I_Product" value="" readonly>
@@ -337,6 +385,11 @@ $result = mysqli_query($conn, $query);
             <div class="form-group">
                 <label for="editQuantity">Quantity:</label>
                 <input type="number" class="form-control" id="editQuantity" name="I_Quantity" value="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editSerialNumber">Serial Number:</label>
+                <input type="text" class="form-control" id="editSerialNumber" name="I_SN" value="" required>
             </div>
 
             <div class="form-group">
@@ -360,6 +413,8 @@ $result = mysqli_query($conn, $query);
             <button type="submit" name="edit" class="btn btn-success">Save Changes</button>
         </form>
     </div>
+</div>
+
 </form>
 <script>
     function openModal(productId) {
@@ -371,22 +426,24 @@ $result = mysqli_query($conn, $query);
         document.getElementById('deleteModal').style.display = 'none';
     }
 
-    function openEditModal(productId, productName, productQuantity, productLocation, productQuantityUnit) {
-        document.getElementById('editModal').style.display = 'block';
-        document.getElementById('editProductId').value = productId;
-        document.getElementById('editProductName').value = productName;
-        document.getElementById('editQuantity').value = productQuantity;
-        document.getElementById('editLocation').value = productLocation;
-        
-        // unit dropdown
-        const unitDropdown = document.getElementById('editUnit');
-        for (let option of unitDropdown.options) {
-            if (option.value === productQuantityUnit) {
-                option.selected = true;
-                break;
-            }
+    function openEditModal(productId, productName, productQuantity, productLocation, productQuantityUnit, productSN) {
+    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editProductId').value = productId;
+    document.getElementById('editProductName').value = productName;
+    document.getElementById('editQuantity').value = productQuantity;
+    document.getElementById('editLocation').value = productLocation;
+    document.getElementById('editSerialNumber').value = productSN; // Set Serial Number
+    
+    // unit dropdown
+    const unitDropdown = document.getElementById('editUnit');
+    for (let option of unitDropdown.options) {
+        if (option.value === productQuantityUnit) {
+            option.selected = true;
+            break;
         }
     }
+}
+
 
     function closeEditModal() {
         document.getElementById('editModal').style.display = 'none';
@@ -433,6 +490,54 @@ $result = mysqli_query($conn, $query);
         }
 }
 
+    // Pass all products to JavaScript
+    const allProducts = <?php echo json_encode($all_products); ?>;
+
+    document.getElementById('search-button').onclick = function() {
+        performSearch();
+    };
+
+    document.getElementById('search-input').addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission
+            performSearch(); // Trigger search function
+        }
+    });
+
+    function performSearch() {
+        let input = document.getElementById('search-input').value.toLowerCase();
+        let tableBody = document.querySelector('.table tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        allProducts.forEach(product => {
+            // Check if the product matches the search input
+            if (product.I_Product.toLowerCase().includes(input) || 
+                (product.I_SN && product.I_SN.toString().includes(input)) || 
+                product.I_Location.toLowerCase().includes(input)) {
+                // Create a new row
+                let newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${product.I_ID}</td>
+                    <td>${product.I_Product}</td>
+                    <td>${(product.I_SN === 0) ? 'N/A' : product.I_SN}</td>
+                    <td>${product.I_Quantity} ${product.I_Unit}</td>
+                    <td>${product.I_Location}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" 
+                            onclick="openEditModal(${product.I_ID}, '${product.I_Product}', '${product.I_Quantity}', '${product.I_Location}', '${product.I_Unit}', '${product.I_SN}')">Edit</button>              
+                        <button type="button" class="btn btn-danger" onclick="openModal(${product.I_ID})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+            }
+        });
+    }
+    function updateLimit(limit) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('limit', limit); // Set the new limit in the query string
+        url.searchParams.set('page', 1); // Reset to the first page
+        window.location.href = url.toString(); // Reload the page
+    }
 </script>
 </body>
 </html>
