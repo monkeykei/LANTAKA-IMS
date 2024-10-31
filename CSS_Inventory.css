@@ -101,7 +101,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            margin-right: 20px; /* Adjust as needed */
+            margin-right: 20px; 
             margin-top: 1%;
         }
 
@@ -113,3 +113,43 @@
         .pagination .btn {
             margin: 0 5px;
         }
+
+        .tooltip-container { /* Logout hover */
+            position: none; 
+            display: inline-block;
+        }
+        .tooltip { 
+            visibility: hidden; 
+            width: 80px;
+            background-color: black; 
+            color: white;
+            text-align: center;
+            border-radius: 6px; 
+            padding: 5px; 
+            position: absolute;
+            z-index: 1; 
+            right: 125%; 
+            top: 50%;
+            transform: translateY(-50%); 
+            margin-left: -40px; 
+            opacity: 0; 
+            transition: opacity 0.3s; 
+        }        
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1; 
+        }        
+        .tooltip::after { /* Arrow for hover */
+            content: ""; 
+            position: absolute; 
+            top: 50%; 
+            left: 100%;
+            margin-top: -5px; 
+            border-width: 5px;
+            border-style: solid; 
+            border-color: transparent transparent transparent black; 
+        }
+        
+        
+        
+        

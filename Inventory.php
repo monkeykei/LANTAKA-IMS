@@ -131,10 +131,11 @@ $result = mysqli_query($conn, $query);
     </style>
 </head>
 <body>
-<div class="logout">
+<div class="logout tooltip-container">
     <button type="button" class="btn btn-danger btn-lg" onclick="document.location='Index.php'" style="width: 50px; height: 50px; border-radius: 50%; padding: 0;">
         <img src="logout.svg" alt="Logout" style="padding-left: 3px; padding-bottom: 3px; width: 25px; height: 30px; filter: invert(100%);">
     </button>
+    <div class="tooltip">Logout</div>
 </div>
 
     
@@ -455,6 +456,9 @@ $result = mysqli_query($conn, $query);
         url.searchParams.set('page', 1); // Reset to the first page
         window.location.href = url.toString(); // Reload the page
     }
+        $(function () {
+    $('[Logout"]').tooltip()
+    })
 </script>
 </body>
 </html>
