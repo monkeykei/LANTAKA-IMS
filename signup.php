@@ -30,11 +30,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <title>ADZU Create User</title>
+    <link rel="stylesheet" href="CSS/CSS_Signup.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<style>
+    <link href='https://fonts.googleapis.com/css?family=Roboto Slab' rel='stylesheet'>
+    <style>
         body {
-            background: url('bg_pic.png') no-repeat center center fixed;
+            background: url('pictures/signup_bg.png') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -42,29 +43,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             height: 100vh;
             margin: 0;
         }
-        .signup-container {
-            max-width: 500px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        .signup-container h2 {
-            margin-bottom: 1.5rem;
-        }
     </style>
+</head>
 <body>
 <div class="signup-container">
-<h2 class="text-center">Create New User</h2>
+<h2 class="text-center" style="font-family: 'Roboto slab', sans-serif;  font-size: 40px">Create New User</h2>
 <form action="signup.php" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+<div class="form-group">
+            <div class="input-group">
+                <div class="input-group-item">
+                    <label for="firstname">First Name</label>
+                    <input type="text" class="form-control" id="firstname" name="firstname" placeholder="First Name" required>
+                </div>
+                <div class="input-group-item">
+                    <label for="mi">M.I.</label>
+                    <input type="text" class="form-control" id="mi" name="mi" placeholder="M.I" required style="width: 60px;">
+                </div>
+                <div class="input-group-item">
+                    <label for="lastname">Last Name</label>
+                    <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Last Name" required>
+                </div>
+            </div>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Confirm Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Confirm Password" required>
             </div>
             <button type="submit" class="btn btn-success btn-block">Register</button>
 </form>

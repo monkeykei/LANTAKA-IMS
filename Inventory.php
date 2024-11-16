@@ -114,11 +114,11 @@ $result = mysqli_query($conn, $query);
     <title>Inventory</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="CSS_Inventory.css">
+    <link rel="stylesheet" href="CSS/CSS_Inventory.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto Slab' rel='stylesheet'>
     <style>
         body {
-            background: url('Inventory_Bg.png') no-repeat center center fixed;
+            background: url('pictures/Inventory_Bg.png') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -133,7 +133,7 @@ $result = mysqli_query($conn, $query);
 <body>
 <div class="logout tooltip-container">
     <button type="button" class="btn btn-danger btn-lg" onclick="document.location='Index.php'" style="width: 50px; height: 50px; border-radius: 50%; padding: 0;">
-        <img src="logout.svg" alt="Logout" style="padding-left: 3px; padding-bottom: 3px; width: 25px; height: 30px; filter: invert(100%);">
+        <img src="pictures/logout.svg" alt="Logout" style="padding-left: 3px; padding-bottom: 3px; width: 25px; height: 30px; filter: invert(100%);">
     </button>
     <div class="tooltip">Logout</div>
 </div>
